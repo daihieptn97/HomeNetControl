@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Danh sách thiết bị</h2>
+    <span id="device-count" class="pill">0 thiết bị</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Trạng thái</th>
+          <th>Tên</th>
+          <th>IP</th>
+          <th>MAC</th>
+          <th>Nhà sản xuất</th>
+          <th>Ghi chú</th>
+          <th>Đã biết</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="devices-table"></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

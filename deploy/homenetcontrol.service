@@ -1,0 +1,17 @@
+[Unit]
+Description=HomeNetControl Pi Network Manager
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/HomeNetControl
+EnvironmentFile=/opt/HomeNetControl/.env
+ExecStart=/opt/HomeNetControl/.venv/bin/python run.py
+Restart=always
+RestartSec=5
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target

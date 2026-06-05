@@ -99,6 +99,67 @@ Web UI chạy trên Pi, expose ra internet an toàn qua Cloudflare Tunnel — kh
 
 ---
 
+## 🚀 Chạy local/dev
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+Chỉnh `.env` trước khi expose qua Cloudflare Tunnel:
+
+```env
+FLASK_SECRET_KEY=change-me-before-cloudflare
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me
+ROUTER_URL=http://192.168.1.1
+MOCK_DATA=true
+```
+
+Khởi động web UI:
+
+```bash
+.venv/bin/python run.py
+```
+
+Mở `http://127.0.0.1:5000`, đăng nhập bằng tài khoản trong `.env`.
+
+---
+
+## 🧪 Kiểm thử
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+Test bao phủ đăng nhập, API chính, parser `arp-scan`/`nmap`/WiFi, scan fallback, cập nhật thiết bị, router settings và cảnh báo.
+
+---
+
+## ⚙️ Triển khai Raspberry Pi
+
+1. Cài Python 3.9+ và các system tools cần thiết:
+
+```bash
+sudo apt update
+sudo apt install -y nmap arp-scan iw wireless-tools net-tools vnstat curl
+```
+
+2. Copy repo vào Pi, tạo `.env`, cài dependencies và chạy `run.py`.
+
+3. Có thể dùng service mẫu tại `deploy/homenetcontrol.service`. Sửa `WorkingDirectory`, `EnvironmentFile`, `ExecStart`, `User`, `Group` theo vị trí deploy thực tế rồi bật service:
+
+```bash
+sudo cp deploy/homenetcontrol.service /etc/systemd/system/homenetcontrol.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now homenetcontrol
+```
+
+Cloudflare Tunnel không được app tự tạo vì tunnel đã được triển khai riêng.
+
+---
+
 ## 📄 License
 
 MIT License — Tự do sử dụng, chỉnh sửa và phân phối.

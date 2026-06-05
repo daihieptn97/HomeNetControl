@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="metric-grid">
+  <article class="metric"><span>Thiết bị online</span><strong id="metric-online">0</strong></article>
+  <article class="metric"><span>Thiết bị lạ</span><strong id="metric-unknown">0</strong></article>
+  <article class="metric"><span>CPU</span><strong id="metric-cpu">0%</strong></article>
+  <article class="metric"><span>RAM</span><strong id="metric-memory">0%</strong></article>
+</section>
+<section class="two-column">
+  <div class="panel">
+    <h2>Mạng nội bộ</h2>
+    <dl class="kv">
+      <dt>Interface</dt><dd id="network-interface">-</dd>
+      <dt>Subnet</dt><dd id="network-subnet">-</dd>
+      <dt>Upload tổng</dt><dd id="network-sent">-</dd>
+      <dt>Download tổng</dt><dd id="network-recv">-</dd>
+    </dl>
+  </div>
+  <div class="panel">
+    <h2>Cảnh báo mới</h2>
+    <div id="latest-alerts" class="list"></div>
+  </div>
+</section>
+{% endblock %}

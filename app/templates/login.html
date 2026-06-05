@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập - Pi Network Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-panel">
+      <div class="brand login-brand">
+        <span class="brand-mark">PN</span>
+        <span>
+          <strong>Pi Network Manager</strong>
+          <small>HomeNetControl</small>
+        </span>
+      </div>
+      <h1>Đăng nhập quản trị</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <p class="flash {{ category }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form method="post" action="{{ url_for('auth.login') }}">
+        <label>
+          Tài khoản
+          <input name="username" autocomplete="username" required autofocus>
+        </label>
+        <label>
+          Mật khẩu
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary wide" type="submit">Đăng nhập</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

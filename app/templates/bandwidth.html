@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Lưu lượng tổng</h2>
+    <div class="segmented" id="bandwidth-range">
+      <button data-range="hour" class="active" type="button">Giờ</button>
+      <button data-range="day" type="button">Ngày</button>
+      <button data-range="week" type="button">Tuần</button>
+    </div>
+  </div>
+  <div class="chart-box">
+    <canvas id="bandwidth-chart" height="110"></canvas>
+  </div>
+  <p id="per-device-note" class="muted">Băng thông theo thiết bị sẽ hiển thị khi router adapter cung cấp dữ liệu.</p>
+</section>
+{% endblock %}

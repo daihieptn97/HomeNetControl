@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="two-column">
+  <div class="panel">
+    <h2>Trạng thái Router</h2>
+    <dl class="kv">
+      <dt>URL</dt><dd id="router-url">-</dd>
+      <dt>Kết nối</dt><dd id="router-reachable">-</dd>
+      <dt>HTTP</dt><dd id="router-code">-</dd>
+      <dt>Độ trễ</dt><dd id="router-latency">-</dd>
+      <dt>Thông báo</dt><dd id="router-message">-</dd>
+    </dl>
+  </div>
+  <form class="panel form-panel" id="router-form">
+    <h2>Cấu hình Router</h2>
+    <label>Router URL<input name="base_url" placeholder="http://192.168.1.1"></label>
+    <label>Tài khoản<input name="username" autocomplete="username"></label>
+    <label>Mật khẩu<input name="password" type="password" autocomplete="current-password" placeholder="Để trống nếu không đổi"></label>
+    <button class="primary" type="submit">Lưu cấu hình</button>
+  </form>
+</section>
+{% endblock %}

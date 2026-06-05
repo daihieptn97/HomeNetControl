@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "Pi Network Manager" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body data-page="{{ active or '' }}">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('pages.dashboard') }}">
+      <span class="brand-mark">PN</span>
+      <span>
+        <strong>Pi Network Manager</strong>
+        <small>HomeNetControl</small>
+      </span>
+    </a>
+    <nav class="nav">
+      <a class="{{ 'active' if active == 'dashboard' }}" href="{{ url_for('pages.dashboard') }}">Dashboard</a>
+      <a class="{{ 'active' if active == 'devices' }}" href="{{ url_for('pages.devices') }}">Thiết bị mạng</a>
+      <a class="{{ 'active' if active == 'wifi' }}" href="{{ url_for('pages.wifi') }}">WiFi</a>
+      <a class="{{ 'active' if active == 'bandwidth' }}" href="{{ url_for('pages.bandwidth') }}">Băng thông</a>
+      <a class="{{ 'active' if active == 'router' }}" href="{{ url_for('pages.router') }}">Router</a>
+      <a class="{{ 'active' if active == 'alerts' }}" href="{{ url_for('pages.alerts') }}">Cảnh báo</a>
+      <a class="{{ 'active' if active == 'settings' }}" href="{{ url_for('pages.settings') }}">Cài đặt</a>
+    </nav>
+    <form class="logout-form" method="post" action="{{ url_for('auth.logout') }}">
+      <button type="submit">Đăng xuất</button>
+    </form>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>{{ title }}</h1>
+        <p id="page-status">Đang tải dữ liệu</p>
+      </div>
+      <button id="scan-now" class="primary" type="button">Quét ngay</button>
+    </header>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

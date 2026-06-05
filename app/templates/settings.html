@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="two-column">
+  <form class="panel form-panel" id="settings-form">
+    <h2>Cài đặt quét mạng</h2>
+    <label>Interface mạng<input name="network_interface" placeholder="eth0 hoặc wlan0"></label>
+    <label>Subnet<input name="network_subnet" placeholder="192.168.1.0/24"></label>
+    <label>Chu kỳ quét (giây)<input name="scan_interval_seconds" type="number" min="15" step="1"></label>
+    <label class="checkbox"><input name="mock_data" type="checkbox"> Dùng fallback/mock khi thiếu tool</label>
+    <button class="primary" type="submit">Lưu cài đặt</button>
+  </form>
+  <div class="panel">
+    <h2>System tools</h2>
+    <div id="tools-list" class="tool-list"></div>
+  </div>
+</section>
+{% endblock %}

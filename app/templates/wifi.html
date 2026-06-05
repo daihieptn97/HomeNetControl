@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="metric-grid">
+  <article class="metric"><span>SSID</span><strong id="wifi-ssid">-</strong></article>
+  <article class="metric"><span>Tín hiệu</span><strong id="wifi-signal">-</strong></article>
+  <article class="metric"><span>Kênh</span><strong id="wifi-channel">-</strong></article>
+  <article class="metric"><span>Băng tần</span><strong id="wifi-band">-</strong></article>
+</section>
+<section class="panel">
+  <h2>Thông số WiFi</h2>
+  <dl class="kv">
+    <dt>Interface</dt><dd id="wifi-interface">-</dd>
+    <dt>Tần số</dt><dd id="wifi-frequency">-</dd>
+    <dt>Tx bitrate</dt><dd id="wifi-bitrate">-</dd>
+    <dt>Nguồn dữ liệu</dt><dd id="wifi-source">-</dd>
+  </dl>
+</section>
+{% endblock %}
