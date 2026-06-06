@@ -313,14 +313,17 @@
 
   function renderUpdateStatus(data) {
     document.getElementById("update-repo").textContent = data.repo_url || "-";
+    document.getElementById("update-dir").textContent = data.repo_dir || "-";
     document.getElementById("update-branch").textContent = data.branch || "-";
     document.getElementById("update-current").textContent = data.current_revision || "-";
     document.getElementById("update-latest").textContent = data.latest_revision || "-";
     document.getElementById("update-state").textContent = data.fetch_ok === false
       ? `Không fetch được: ${data.fetch_output || "-"}`
       : data.has_update ? "Có phiên bản mới" : "Đang ở phiên bản mới nhất";
+    document.getElementById("update-dirty").textContent = data.dirty ? "Có thay đổi local" : "Sạch";
     document.getElementById("update-current-log").textContent = data.current_log || "-";
     document.getElementById("update-latest-log").textContent = data.latest_log || "-";
+    document.getElementById("update-output").textContent = data.git_status || data.fetch_output || "-";
   }
 
   async function loadUpdateStatus() {
@@ -340,6 +343,7 @@
     document.getElementById("update-latest").textContent = data.after_revision || "-";
     document.getElementById("update-latest-log").textContent = data.output || "-";
     document.getElementById("update-current-log").textContent = data.current_log || "-";
+    document.getElementById("update-output").textContent = data.git_status || data.output || "-";
     setStatus(data.ok ? "Đã chạy update, chờ app restart" : "Update thất bại, xem output git");
     if (!data.ok && button) button.disabled = false;
   }
