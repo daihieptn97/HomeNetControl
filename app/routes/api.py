@@ -7,12 +7,14 @@ from ..extensions import db, socketio
 from ..models import Alert, Device
 from ..services.bandwidth import get_bandwidth
 from ..services.dashboard import dashboard_payload
-from ..services.network import scan_and_persist
+from ..services.network import known_subnets_payload, scan_and_persist, scan_subnet_and_persist
+from ..services.pi import pi_info
 from ..services.router import get_router_config, router_status
 from ..services.serializers import alert_to_dict, device_to_dict
 from ..services.settings import get_settings_payload, update_settings
 from ..services.tools import tool_status
-from ..services.wifi import wifi_info
+from ..services.updater import run_update, update_status
+from ..services.wifi import connect_wifi, scan_wifi_networks, wifi_info
 
 api_bp = Blueprint("api", __name__)
 
@@ -59,10 +61,53 @@ def scan():
     return jsonify(payload)
 
 
+@api_bp.get("/subnets")
+@login_required
+def subnets():
+    return jsonify(known_subnets_payload())
+
+
+@api_bp.post("/scan/subnet")
+@login_required
+def scan_subnet():
+    payload = request.get_json(silent=True) or {}
+    try:
+        result = scan_subnet_and_persist(str(payload.get("subnet", "")))
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    socketio.emit("devices:update", result["devices"])
+    for alert in result["alerts"]:
+        socketio.emit("alerts:new", alert)
+    socketio.emit("dashboard:update", dashboard_payload())
+    return jsonify(result)
+
+
 @api_bp.get("/wifi")
 @login_required
 def wifi():
     return jsonify(wifi_info())
+
+
+@api_bp.get("/wifi/scan")
+@login_required
+def wifi_scan():
+    return jsonify(scan_wifi_networks())
+
+
+@api_bp.post("/wifi/connect")
+@login_required
+def wifi_connect():
+    payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(connect_wifi(str(payload.get("ssid", "")), str(payload.get("password", ""))))
+    except (ValueError, RuntimeError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@api_bp.get("/pi")
+@login_required
+def pi():
+    return jsonify(pi_info())
 
 
 @api_bp.get("/bandwidth")
@@ -115,6 +160,18 @@ def acknowledge_alert(alert_id: int):
 @login_required
 def tools():
     return jsonify(tool_status())
+
+
+@api_bp.get("/update/status")
+@login_required
+def update_info():
+    return jsonify(update_status())
+
+
+@api_bp.post("/update")
+@login_required
+def update_app():
+    return jsonify(run_update())
 
 
 @api_bp.get("/settings")

@@ -12,7 +12,30 @@
     <dt>Interface</dt><dd id="wifi-interface">-</dd>
     <dt>Tần số</dt><dd id="wifi-frequency">-</dd>
     <dt>Tx bitrate</dt><dd id="wifi-bitrate">-</dd>
+    <dt>Subnet</dt><dd id="wifi-subnet">-</dd>
     <dt>Nguồn dữ liệu</dt><dd id="wifi-source">-</dd>
   </dl>
+</section>
+<section class="panel">
+  <div class="panel-header">
+    <h2>WiFi xung quanh Pi</h2>
+    <button id="wifi-scan" type="button">Quét WiFi</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>SSID</th>
+          <th>Tín hiệu</th>
+          <th>Băng tần</th>
+          <th>Kênh</th>
+          <th>Bảo mật</th>
+          <th>Mật khẩu</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="wifi-networks"></tbody>
+    </table>
+  </div>
 </section>
 {% endblock %}

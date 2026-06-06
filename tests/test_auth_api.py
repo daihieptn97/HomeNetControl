@@ -37,6 +37,24 @@ def test_scan_devices_and_update(logged_in):
     assert payload["is_known"] is True
 
 
+def test_pi_wifi_and_subnet_endpoints(logged_in):
+    pi = logged_in.get("/api/pi")
+    assert pi.status_code == 200
+    assert "cpu" in pi.get_json()
+
+    wifi_scan = logged_in.get("/api/wifi/scan")
+    assert wifi_scan.status_code == 200
+    assert wifi_scan.get_json()["networks"]
+
+    subnet_scan = logged_in.post("/api/scan/subnet", json={"subnet": "10.10.10.0/24"})
+    assert subnet_scan.status_code == 200
+    assert subnet_scan.get_json()["subnet"]["subnet"] == "10.10.10.0/24"
+
+    subnets = logged_in.get("/api/subnets")
+    assert subnets.status_code == 200
+    assert any(row["subnet"] == "10.10.10.0/24" for row in subnets.get_json())
+
+
 def test_settings_and_router_endpoints(logged_in):
     settings = logged_in.post(
         "/api/settings",

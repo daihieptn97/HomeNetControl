@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="metric-grid">
+  <article class="metric"><span>CPU</span><strong id="pi-cpu">-</strong></article>
+  <article class="metric"><span>Nhiệt độ</span><strong id="pi-temp">-</strong></article>
+  <article class="metric"><span>RAM</span><strong id="pi-memory">-</strong></article>
+  <article class="metric"><span>Ổ đĩa</span><strong id="pi-disk">-</strong></article>
+</section>
+<section class="two-column">
+  <div class="panel">
+    <h2>Thiết bị</h2>
+    <dl class="kv">
+      <dt>Hostname</dt><dd id="pi-hostname">-</dd>
+      <dt>Nền tảng</dt><dd id="pi-platform">-</dd>
+      <dt>Kiến trúc</dt><dd id="pi-machine">-</dd>
+      <dt>Python</dt><dd id="pi-python">-</dd>
+      <dt>Uptime</dt><dd id="pi-uptime">-</dd>
+      <dt>Boot time</dt><dd id="pi-boot">-</dd>
+    </dl>
+  </div>
+  <div class="panel">
+    <h2>CPU và bộ nhớ</h2>
+    <dl class="kv">
+      <dt>Số core</dt><dd id="pi-cpu-count">-</dd>
+      <dt>Tần số</dt><dd id="pi-cpu-frequency">-</dd>
+      <dt>Throttled</dt><dd id="pi-throttled">-</dd>
+      <dt>RAM khả dụng</dt><dd id="pi-memory-available">-</dd>
+      <dt>Swap</dt><dd id="pi-swap">-</dd>
+    </dl>
+  </div>
+</section>
+<section class="panel stack">
+  <h2>Mạng</h2>
+  <dl class="kv">
+    <dt>Interface</dt><dd id="pi-interface">-</dd>
+    <dt>Subnet</dt><dd id="pi-subnet">-</dd>
+    <dt>Upload tổng</dt><dd id="pi-network-sent">-</dd>
+    <dt>Download tổng</dt><dd id="pi-network-recv">-</dd>
+  </dl>
+  <div class="table-wrap">
+    <table class="compact-table">
+      <thead>
+        <tr>
+          <th>Loại</th>
+          <th>Địa chỉ</th>
+          <th>Netmask</th>
+          <th>Broadcast</th>
+        </tr>
+      </thead>
+      <tbody id="pi-addresses"></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

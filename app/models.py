@@ -19,7 +19,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     def set_password(self, password: str) -> None:
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
@@ -47,6 +47,16 @@ class DeviceObservation(db.Model):
     vendor = db.Column(db.String(255), default="")
     observed_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
     device = db.relationship("Device", backref="observations")
+
+
+class KnownSubnet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subnet = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    interface = db.Column(db.String(64), default="")
+    ssid = db.Column(db.String(255), default="")
+    first_seen = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    last_seen = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    last_scanned_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
 
 class Alert(db.Model):

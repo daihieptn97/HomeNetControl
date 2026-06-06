@@ -6,13 +6,14 @@ import shutil
 import socket
 import subprocess
 from dataclasses import dataclass
+from itertools import islice
 
 import psutil
 from flask import current_app
 
 from ..extensions import db
-from ..models import Alert, Device, DeviceObservation, utcnow
-from .serializers import device_to_dict
+from ..models import Alert, Device, DeviceObservation, KnownSubnet, utcnow
+from .serializers import device_to_dict, known_subnet_to_dict
 from .settings import get_setting
 
 
@@ -99,14 +100,43 @@ def parse_nmap(output: str) -> list[ScanDevice]:
     return devices
 
 
-def scan_network() -> list[ScanDevice]:
-    mock_enabled = get_setting("mock_data", "true" if current_app.config.get("MOCK_DATA") else "false") == "true"
-    if mock_enabled and not (shutil.which("arp-scan") or shutil.which("nmap")):
-        return mock_devices()
+def validate_subnet(subnet: str) -> str:
+    try:
+        network = ipaddress.IPv4Network(subnet, strict=False)
+    except ValueError as exc:
+        raise ValueError("Subnet không hợp lệ") from exc
+    return str(network)
 
-    interface = detect_default_interface()
-    subnet = detect_subnet(interface)
-    if shutil.which("arp-scan"):
+
+def remember_subnet(subnet: str, interface: str = "", ssid: str = "", scanned: bool = False) -> KnownSubnet:
+    normalized = validate_subnet(subnet)
+    now = utcnow()
+    row = KnownSubnet.query.filter_by(subnet=normalized).first()
+    if row is None:
+        row = KnownSubnet(subnet=normalized, first_seen=now)
+        db.session.add(row)
+    row.interface = interface or row.interface
+    row.ssid = ssid or row.ssid
+    row.last_seen = now
+    if scanned:
+        row.last_scanned_at = now
+    return row
+
+
+def known_subnets_payload() -> list[dict]:
+    rows = KnownSubnet.query.order_by(KnownSubnet.last_seen.desc()).all()
+    return [known_subnet_to_dict(row) for row in rows]
+
+
+def scan_network(subnet: str | None = None, interface: str | None = None) -> list[ScanDevice]:
+    mock_enabled = get_setting("mock_data", "true" if current_app.config.get("MOCK_DATA") else "false") == "true"
+    interface = interface or detect_default_interface()
+    current_subnet = detect_subnet(interface)
+    target_subnet = validate_subnet(subnet or current_subnet)
+    if mock_enabled and not (shutil.which("arp-scan") or shutil.which("nmap")):
+        return mock_devices(target_subnet)
+
+    if target_subnet == current_subnet and shutil.which("arp-scan"):
         completed = subprocess.run(
             ["arp-scan", "--localnet", "--interface", interface],
             capture_output=True,
@@ -120,7 +150,7 @@ def scan_network() -> list[ScanDevice]:
 
     if shutil.which("nmap"):
         completed = subprocess.run(
-            ["nmap", "-sn", subnet],
+            ["nmap", "-sn", target_subnet],
             capture_output=True,
             text=True,
             timeout=45,
@@ -130,21 +160,27 @@ def scan_network() -> list[ScanDevice]:
         if devices:
             return devices
 
-    return mock_devices() if mock_enabled else []
+    return mock_devices(target_subnet) if mock_enabled else []
 
 
-def mock_devices() -> list[ScanDevice]:
+def mock_devices(subnet: str = "192.168.1.0/24") -> list[ScanDevice]:
+    network = ipaddress.IPv4Network(validate_subnet(subnet), strict=False)
+    hosts = list(islice(network.hosts(), 44))
+    gateway = str(hosts[0]) if hosts else "192.168.1.1"
+    pi = str(hosts[11]) if len(hosts) > 11 else gateway
+    phone = str(hosts[43]) if len(hosts) > 43 else gateway
     return [
-        ScanDevice("192.168.1.1", "aa:bb:cc:00:00:01", "router.local", "Generic Router"),
-        ScanDevice("192.168.1.12", "aa:bb:cc:00:00:12", "raspberrypi", "Raspberry Pi"),
-        ScanDevice("192.168.1.44", "aa:bb:cc:00:00:44", "phone", "Unknown Vendor"),
+        ScanDevice(gateway, "aa:bb:cc:00:00:01", "router.local", "Generic Router"),
+        ScanDevice(pi, "aa:bb:cc:00:00:12", "raspberrypi", "Raspberry Pi"),
+        ScanDevice(phone, "aa:bb:cc:00:00:44", "phone", "Unknown Vendor"),
     ]
 
 
-def persist_scan(devices: list[ScanDevice]) -> tuple[list[Device], list[Alert]]:
+def persist_scan(devices: list[ScanDevice], mark_missing_offline: bool = True) -> tuple[list[Device], list[Alert]]:
     now = utcnow()
     seen_macs = {normalize_mac(item.mac) for item in devices if item.mac}
-    Device.query.update({Device.is_online: False})
+    if mark_missing_offline:
+        Device.query.update({Device.is_online: False})
 
     persisted: list[Device] = []
     alerts: list[Alert] = []
@@ -183,15 +219,33 @@ def persist_scan(devices: list[ScanDevice]) -> tuple[list[Device], list[Alert]]:
             alerts.append(alert)
         persisted.append(device)
 
-    if not seen_macs:
+    if mark_missing_offline and not seen_macs:
         Device.query.update({Device.is_online: False})
     db.session.commit()
     return persisted, alerts
 
 
 def scan_and_persist() -> dict:
-    devices, alerts = persist_scan(scan_network())
+    interface = detect_default_interface()
+    subnet = detect_subnet(interface)
+    remember_subnet(subnet, interface=interface, scanned=True)
+    devices, alerts = persist_scan(scan_network(subnet=subnet, interface=interface))
     return {
+        "devices": [device_to_dict(device) for device in devices],
+        "alerts": [{"id": alert.id, "message": alert.message} for alert in alerts],
+        "scanned_at": utcnow().isoformat(),
+        "subnet": subnet,
+    }
+
+
+def scan_subnet_and_persist(subnet: str) -> dict:
+    normalized = validate_subnet(subnet)
+    interface = detect_default_interface()
+    known = remember_subnet(normalized, interface=interface, scanned=True)
+    devices, alerts = persist_scan(scan_network(subnet=normalized, interface=interface), mark_missing_offline=False)
+    db.session.commit()
+    return {
+        "subnet": known_subnet_to_dict(known),
         "devices": [device_to_dict(device) for device in devices],
         "alerts": [{"id": alert.id, "message": alert.message} for alert in alerts],
         "scanned_at": utcnow().isoformat(),

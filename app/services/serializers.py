@@ -38,6 +38,18 @@ def alert_to_dict(alert) -> dict:
     }
 
 
+def known_subnet_to_dict(subnet) -> dict:
+    return {
+        "id": subnet.id,
+        "subnet": subnet.subnet,
+        "interface": subnet.interface,
+        "ssid": subnet.ssid,
+        "first_seen": iso(subnet.first_seen),
+        "last_seen": iso(subnet.last_seen),
+        "last_scanned_at": iso(subnet.last_scanned_at),
+    }
+
+
 def bandwidth_sample_to_dict(sample) -> dict:
     return {
         "id": sample.id,

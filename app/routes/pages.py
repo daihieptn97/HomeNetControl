@@ -23,6 +23,12 @@ def devices():
     return render_template("devices.html", active="devices", title="Thiết bị mạng")
 
 
+@pages_bp.route("/pi")
+@login_required
+def pi():
+    return render_template("pi.html", active="pi", title="Thông tin Pi")
+
+
 @pages_bp.route("/wifi")
 @login_required
 def wifi():

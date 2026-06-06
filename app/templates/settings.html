@@ -14,4 +14,27 @@
     <div id="tools-list" class="tool-list"></div>
   </div>
 </section>
+<section class="panel stack">
+  <div class="panel-header">
+    <h2>Update code</h2>
+    <button id="app-update" class="primary" type="button">Update mới</button>
+  </div>
+  <dl class="kv">
+    <dt>Repo</dt><dd id="update-repo">-</dd>
+    <dt>Branch</dt><dd id="update-branch">-</dd>
+    <dt>Phiên bản hiện tại</dt><dd id="update-current">-</dd>
+    <dt>Phiên bản mới</dt><dd id="update-latest">-</dd>
+    <dt>Trạng thái</dt><dd id="update-state">-</dd>
+  </dl>
+  <div class="two-column">
+    <div>
+      <h2>Git log hiện tại</h2>
+      <pre id="update-current-log" class="log-box">-</pre>
+    </div>
+    <div>
+      <h2>Git log phiên bản mới</h2>
+      <pre id="update-latest-log" class="log-box">-</pre>
+    </div>
+  </div>
+</section>
 {% endblock %}

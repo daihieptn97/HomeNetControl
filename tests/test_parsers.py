@@ -1,5 +1,5 @@
 from app.services.network import parse_arp_scan, parse_nmap
-from app.services.wifi import parse_iw_link, parse_iwconfig
+from app.services.wifi import parse_iw_link, parse_iw_scan, parse_iwconfig, parse_nmcli_wifi
 
 
 def test_parse_arp_scan():
@@ -50,3 +50,31 @@ def test_parse_iwconfig():
     assert data["ssid"] == "HomeNet"
     assert data["band"] == "5 GHz"
     assert data["signal_dbm"] == -61
+
+
+def test_parse_iw_scan():
+    output = """
+BSS 00:11:22:33:44:55(on wlan0)
+        freq: 2437
+        capability: ESS Privacy ShortSlotTime (0x0411)
+        signal: -48.00 dBm
+        SSID: HomeNet
+        RSN:     * Version: 1
+BSS 00:11:22:33:44:66(on wlan0)
+        freq: 5180
+        signal: -58.00 dBm
+        SSID: Guest
+"""
+    networks = parse_iw_scan(output)
+    assert networks[0]["ssid"] == "HomeNet"
+    assert networks[0]["security"] == "WPA2/RSN"
+    assert networks[0]["channel"] == "6"
+    assert networks[1]["band"] == "5 GHz"
+
+
+def test_parse_nmcli_wifi():
+    output = "HomeNet:87:2437:WPA2\\ WPA3\nCafe\\:Wifi:42:2462:WPA2\n"
+    networks = parse_nmcli_wifi(output)
+    assert networks[0]["ssid"] == "HomeNet"
+    assert networks[0]["signal_percent"] == 87
+    assert networks[1]["ssid"] == "Cafe:Wifi"

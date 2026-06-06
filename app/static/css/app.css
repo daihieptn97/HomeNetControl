@@ -138,6 +138,8 @@ button:hover { border-color: var(--primary); }
 .metric strong {
   font-size: 30px;
   line-height: 1.1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .two-column {
   display: grid;
@@ -145,6 +147,11 @@ button:hover { border-color: var(--primary); }
   gap: 16px;
 }
 .panel { padding: 18px; }
+section.panel + section.panel { margin-top: 16px; }
+.stack {
+  display: grid;
+  gap: 14px;
+}
 .panel h2 {
   font-size: 18px;
   margin: 0 0 14px;
@@ -183,6 +190,7 @@ table {
   border-collapse: collapse;
   min-width: 960px;
 }
+.compact-table { min-width: 680px; }
 th, td {
   text-align: left;
   border-bottom: 1px solid var(--line);
@@ -287,6 +295,19 @@ label input { color: var(--text); font-weight: 400; }
 .tool code {
   color: var(--muted);
   overflow-wrap: anywhere;
+}
+.log-box {
+  min-height: 180px;
+  max-height: 320px;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #111820;
+  color: #e7edf1;
 }
 
 .login-page {
