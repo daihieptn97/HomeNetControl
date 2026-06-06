@@ -18,12 +18,22 @@ RANGES = {
 }
 
 
-def collect_bandwidth_sample(interface: str | None = None) -> BandwidthSample:
+def read_network_counters(interface: str | None = None) -> dict:
     interface = interface or detect_default_interface()
     counters_by_interface = psutil.net_io_counters(pernic=True)
     counters = counters_by_interface.get(interface)
     if counters is None:
         counters = psutil.net_io_counters()
+    return {
+        "interface": interface,
+        "bytes_sent": counters.bytes_sent,
+        "bytes_recv": counters.bytes_recv,
+    }
+
+
+def collect_bandwidth_sample(interface: str | None = None) -> BandwidthSample:
+    interface = interface or detect_default_interface()
+    counters_payload = read_network_counters(interface)
 
     previous = (
         BandwidthSample.query.filter_by(interface=interface)
@@ -33,13 +43,13 @@ def collect_bandwidth_sample(interface: str | None = None) -> BandwidthSample:
     upload_delta = 0
     download_delta = 0
     if previous:
-        upload_delta = max(0, counters.bytes_sent - previous.bytes_sent)
-        download_delta = max(0, counters.bytes_recv - previous.bytes_recv)
+        upload_delta = max(0, counters_payload["bytes_sent"] - previous.bytes_sent)
+        download_delta = max(0, counters_payload["bytes_recv"] - previous.bytes_recv)
 
     sample = BandwidthSample(
         interface=interface,
-        bytes_sent=counters.bytes_sent,
-        bytes_recv=counters.bytes_recv,
+        bytes_sent=counters_payload["bytes_sent"],
+        bytes_recv=counters_payload["bytes_recv"],
         upload_delta=upload_delta,
         download_delta=download_delta,
     )

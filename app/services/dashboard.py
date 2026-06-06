@@ -5,14 +5,14 @@ import platform
 import psutil
 
 from ..models import Alert, Device
-from .bandwidth import collect_bandwidth_sample
+from .bandwidth import read_network_counters
 from .network import detect_default_interface, detect_subnet
 from .serializers import alert_to_dict
 
 
 def dashboard_payload() -> dict:
     interface = detect_default_interface()
-    sample = collect_bandwidth_sample(interface)
+    counters = read_network_counters(interface)
     return {
         "devices": {
             "online": Device.query.filter_by(is_online=True).count(),
@@ -23,8 +23,8 @@ def dashboard_payload() -> dict:
         "network": {
             "interface": interface,
             "subnet": detect_subnet(interface),
-            "bytes_sent": sample.bytes_sent,
-            "bytes_recv": sample.bytes_recv,
+            "bytes_sent": counters["bytes_sent"],
+            "bytes_recv": counters["bytes_recv"],
         },
         "system": {
             "hostname": platform.node(),

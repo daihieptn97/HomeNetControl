@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from flask import Flask
+from sqlalchemy import text
 
 from .config import Config
 from .extensions import db, login_manager, socketio
@@ -32,6 +33,7 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
     app.register_blueprint(api_bp, url_prefix="/api")
 
     with app.app_context():
+        _configure_sqlite()
         db.create_all()
         _bootstrap_defaults(app)
 
@@ -42,6 +44,14 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
 @login_manager.user_loader
 def load_user(user_id: str) -> User | None:
     return db.session.get(User, int(user_id))
+
+
+def _configure_sqlite() -> None:
+    if not str(db.engine.url).startswith("sqlite"):
+        return
+    db.session.execute(text("PRAGMA journal_mode=WAL"))
+    db.session.execute(text("PRAGMA busy_timeout=30000"))
+    db.session.commit()
 
 
 def _bootstrap_defaults(app: Flask) -> None:
